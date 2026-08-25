@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Answer check — AS91379 Internal Factors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF7;
+    --ink:#191D21;
+    --ink-soft:#5A6570;
+    --rule:#D9DEE3;
+    --booklet:#14486B;
+    --booklet-tint:#EAF0F5;
+    --found:#1D6B4F;
+    --missing:#A8471E;
+    --highlight:#FFF0A8;
+    --sans:'Archivo','Segoe UI',system-ui,-apple-system,sans-serif;
+    --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.55;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- masthead ---------- */
+  header.mast{
+    border-bottom:2px solid var(--ink);
+    padding:26px 0 14px;
+    margin-bottom:26px;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--booklet);
+    margin:0 0 6px;
+  }
+  .mast h1{
+    font-size:clamp(28px,4.4vw,42px);
+    font-weight:700;
+    letter-spacing:-.02em;
+    margin:0 0 6px;
+    line-height:1.05;
+  }
+  .mast p{margin:0;max-width:60ch;color:var(--ink-soft);font-size:15px}
+
+  .disclaimer{
+    margin-top:16px;
+    border-left:3px solid var(--booklet);
+    background:var(--booklet-tint);
+    padding:10px 14px;
+    font-size:14px;
+    max-width:74ch;
+  }
+  .disclaimer strong{font-weight:600}
+
+  /* ---------- question picker ---------- */
+  .picker{margin-bottom:28px}
+  .picker h2, .sheet h2, .resource h2{
+    font-size:12px;
+    font-family:var(--mono);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:400;
+    margin:0 0 10px;
+  }
+  .tabs{display:flex;flex-wrap:wrap;gap:8px}
+  .tab{
+    font-family:var(--sans);
+    font-size:14px;
+    font-weight:500;
+    background:#fff;
+    color:var(--ink);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:9px 13px;
+    cursor:pointer;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    transition:border-color .12s, background .12s;
+  }
+  .tab:hover{border-color:var(--booklet)}
+  .tab[aria-pressed="true"]{
+    background:var(--booklet);
+    border-color:var(--booklet);
+    color:#fff;
+  }
+  .tab .ref{font-family:var(--mono);font-size:11px;opacity:.75}
+  .tab .verb{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    border:1px solid currentColor;
+    border-radius:2px;
+    padding:1px 4px;
+    opacity:.8;
+  }
+
+  /* ---------- resource ---------- */
+  .resource{
+    border:1px solid var(--rule);
+    background:#fff;
+    padding:18px 20px;
+    margin-bottom:24px;
+  }
+  .biz{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:19px;
+    margin:0 0 2px;
+  }
+  .biz-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 12px;
+    font-family:var(--mono);
+  }
+  .resource p.body{font-family:var(--serif);font-size:16.5px;margin:0 0 10px;max-width:74ch}
+  .resource p.body:last-child{margin-bottom:0}
+
+  .qbox{
+    margin-top:16px;
+    border-top:1px solid var(--rule);
+    padding-top:14px;
+  }
+  .qbox .qtext{
+    font-family:var(--serif);
+    font-size:18px;
+    font-weight:600;
+    margin:0;
+    max-width:70ch;
+  }
+  .qbox .qnote{
+    margin:8px 0 0;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- answer sheet ---------- */
+  .sheet{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 300px;
+    gap:0;
+    border:1px solid var(--rule);
+    background:#fff;
+  }
+  .sheet-main{padding:18px 20px 20px;position:relative}
+  .hatch{
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:9px;
+    background-image:repeating-linear-gradient(45deg,var(--rule) 0 1px,transparent 1px 6px);
+    opacity:.85;
+  }
+  .sheet-main > *{margin-left:16px}
+
+  .field-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px}
+  .field{flex:1 1 240px;min-width:0}
+  label{
+    display:block;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  input[type=text]{
+    width:100%;
+    font-family:var(--serif);
+    font-size:16px;
+    padding:8px 10px;
+    border:1px solid var(--rule);
+    border-radius:2px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  textarea{
+    width:100%;
+    min-height:300px;
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:31px;
+    padding:6px 10px;
+    border:1px solid var(--rule);
+    border-radius:2px;
+    color:var(--ink);
+    resize:vertical;
+    /* ruled paper */
+    background-color:var(--paper);
+    background-image:repeating-linear-gradient(var(--paper) 0 30px, var(--rule) 30px 31px);
+    background-attachment:local;
+  }
+  input:focus-visible, textarea:focus-visible, .tab:focus-visible, button:focus-visible{
+    outline:2px solid var(--booklet);
+    outline-offset:2px;
+  }
+
+  .actions{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  button.primary{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:15px;
+    background:var(--ink);
+    color:#fff;
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:10px 20px;
+    cursor:pointer;
+  }
+  button.primary:hover{background:var(--booklet);border-color:var(--booklet)}
+  button.ghost{
+    font-family:var(--sans);
+    font-size:14px;
+    background:transparent;
+    color:var(--ink-soft);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:10px 14px;
+    cursor:pointer;
+  }
+  button.ghost:hover{color:var(--ink);border-color:var(--ink)}
+  .count{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-left:auto}
+
+  /* ---------- margin annotations ---------- */
+  .margin{
+    border-left:1px solid var(--rule);
+    padding:18px 18px 20px;
+    background:linear-gradient(var(--paper),var(--paper));
+  }
+  .margin h3{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:400;
+    margin:0 0 12px;
+  }
+  .empty{
+    font-family:var(--serif);
+    font-size:15px;
+    color:var(--ink-soft);
+    font-style:italic;
+    margin:0;
+  }
+  .verdict{
+    font-family:var(--serif);
+    font-size:16px;
+    line-height:1.4;
+    margin:0 0 16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--rule);
+  }
+  .verdict b{font-weight:600}
+
+  ul.checks{list-style:none;margin:0;padding:0}
+  ul.checks li{
+    display:grid;
+    grid-template-columns:18px 1fr;
+    gap:9px;
+    padding:9px 0;
+    border-bottom:1px dotted var(--rule);
+    font-size:14px;
+    align-items:start;
+  }
+  ul.checks li:last-child{border-bottom:0}
+  .mark{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:15px;
+    line-height:1.3;
+  }
+  .ok .mark{color:var(--found)}
+  .no .mark{color:var(--missing)}
+  .ck-name{font-weight:600;display:block}
+  .ck-note{color:var(--ink-soft);font-size:13px;display:block;margin-top:1px}
+
+  /* ---------- tagged answer ---------- */
+  .tagged{
+    margin-top:26px;
+    border:1px solid var(--rule);
+    background:#fff;
+    padding:18px 20px 22px;
+  }
+  .tagged h2{margin-bottom:4px}
+  .tagged .lede{font-size:14px;color:var(--ink-soft);margin:0 0 14px;max-width:70ch}
+  .tagged .prose{
+    font-family:var(--serif);
+    font-size:17.5px;
+    line-height:1.85;
+    max-width:74ch;
+  }
+  .tagged mark{background:var(--highlight);padding:0 1px}
+  .tag{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    vertical-align:.35em;
+    padding:1px 4px;
+    margin-left:3px;
+    border-radius:2px;
+    white-space:nowrap;
+  }
+  .tag-stated{background:#E7EDF2;color:var(--booklet)}
+  .tag-explained{background:#E4F0EA;color:var(--found)}
+  .tag-impact{background:#1D6B4F;color:#fff}
+  .tag-contrast{background:#F6E7DF;color:var(--missing)}
+  .tag-conc{background:#191D21;color:#fff}
+
+  .legend{
+    margin-top:18px;
+    padding-top:12px;
+    border-top:1px solid var(--rule);
+    font-size:13px;
+    color:var(--ink-soft);
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+
+  footer.foot{
+    margin-top:34px;
+    padding-top:14px;
+    border-top:1px solid var(--rule);
+    font-size:13px;
+    color:var(--ink-soft);
+    max-width:78ch;
+  }
+
+  @media (max-width:860px){
+    .sheet{grid-template-columns:1fr}
+    .margin{border-left:0;border-top:1px solid var(--rule)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+  @media print{
+    .picker,.actions,.hatch,footer.foot{display:none}
+    body{background:#fff}
+    .sheet,.resource,.tagged{border-color:#999}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">AS91379 · Business Studies 3.1 · Internal factors</p>
+  <h1>Answer check</h1>
+  <p>Write an answer, then check whether it does the things a 91379 answer has to do. Covers innovation and innovative culture.</p>
+  <div class="disclaimer">
+    <strong>This is not a mark.</strong> It checks the <em>shape</em> of your answer — whether you stated a point, gave a reason, and landed an impact on the business. It cannot judge whether your reasoning is any good. Only your teacher and the marker can do that.
+  </div>
+</header>
+
+<section class="picker">
+  <h2>Choose a question</h2>
+  <div class="tabs" id="tabs"></div>
+</section>
+
+<section class="resource" id="resource"></section>
+
+<section class="sheet">
+  <div class="sheet-main">
+    <div class="hatch" aria-hidden="true"></div>
+    <h2>Your answer</h2>
+    <div class="field-row">
+      <div class="field">
+        <label for="biz">Business you are writing about</label>
+        <input type="text" id="biz" placeholder="e.g. Tāhuna Instruments, or your own studied business">
+      </div>
+      <div class="field">
+        <label for="gs">Good or service it sells</label>
+        <input type="text" id="gs" placeholder="e.g. portable water-testing instruments">
+      </div>
+    </div>
+    <label for="answer">Write your answer here</label>
+    <textarea id="answer" spellcheck="true" placeholder="Start with your point, then say why, then say what it does to the business…"></textarea>
+    <div class="actions">
+      <button class="primary" id="check">Check my answer</button>
+      <button class="ghost" id="clear">Clear</button>
+      <span class="count" id="count">0 words</span>
+    </div>
+  </div>
+
+  <aside class="margin" id="margin">
+    <h3>Marker's margin</h3>
+    <p class="empty">Nothing checked yet. Write an answer and press <b>Check my answer</b>.</p>
+  </aside>
+</section>
+
+<section class="tagged" id="tagged" hidden>
+  <h2>Your answer, tagged</h2>
+  <p class="lede">Same tags your workbook uses on its model answers. Highlighted words are the ones that told the checker a move was happening.</p>
+  <div class="prose" id="prose"></div>
+  <div class="legend">
+    <span><span class="tag tag-stated">Stated</span> a point is made</span>
+    <span><span class="tag tag-explained">Explained</span> a reason is given</span>
+    <span><span class="tag tag-impact">Fully explained</span> an effect on the business</span>
+    <span><span class="tag tag-contrast">Other side</span> a negative or counterpoint</span>
+    <span><span class="tag tag-conc">Conclusion</span> a judgement is reached</span>
+  </div>
+</section>
+
+<footer class="foot">
+  The businesses in these scenarios are invented for practice. They are written to match the shape of the 91379 exam — one New Zealand-registered business operating globally, with parts that build from explain to fully explain to evaluate. Bring your own studied business wherever a question lets you.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   SCENARIOS — invented businesses, written to the 91379 shape
+   ============================================================ */
+
+const SCENARIOS = [
+  {
+    id:"tahuna",
+    name:"Tāhuna Instruments",
+    sub:"Queenstown · NZ-registered · exports to Australia, Chile, Ireland, Canada",
+    topic:"Innovation",
+    body:[
+      "Tāhuna Instruments designs and manufactures portable water-testing instruments used by regional councils, farmers and irrigation companies. The business is registered in New Zealand and exports to Australia, Chile, Ireland and Canada.",
+      "For the past three years its research and development team has been working on a handheld sensor that gives a nitrate reading on the spot in about ninety seconds. Until now, customers have had to send water samples away to a laboratory and wait several days for a result. The project has taken a large share of the R&amp;D budget and the launch date has been pushed back twice.",
+      "At the same time, managers are looking at the way the instruments are put together. The assembly line is largely manual, and two competitors overseas have already automated theirs."
+    ],
+    questions:[
+      {
+        ref:"(a)(i)", verb:"explain", type:"explain",
+        text:"Explain ONE positive effect on Tāhuna Instruments of investing in research and development.",
+        note:"Achieved-level wording. State your point and say why."
+      },
+      {
+        ref:"(a)(ii)", verb:"fully explain", type:"fully",
+        text:"Fully explain ONE impact on the profitability of the business of developing the new nitrate sensor.",
+        note:"Merit-level wording. State, explain, then say what it does to the business."
+      },
+      {
+        ref:"(a)(iii)", verb:"evaluate", type:"evaluate",
+        text:"How likely is it that the new nitrate sensor will give Tāhuna Instruments a lasting competitive advantage? Provide a justified conclusion, including any new information.",
+        note:"Excellence-level wording. A positive, a negative, then a judgement that uses something not in the resource."
+      }
+    ]
+  },
+  {
+    id:"kahu",
+    name:"Kahu Textiles",
+    sub:"Whanganui · NZ-registered · exports to Japan, Norway, Canada",
+    topic:"Innovative culture",
+    body:[
+      "Kahu Textiles makes performance outdoor fabric from recovered fishing net and other recycled plastic. It is registered in New Zealand and sells to outdoor clothing brands in Japan, Norway and Canada.",
+      "The business runs a role culture. Every job has a clearly defined title and each person reports upward through three layers of management. Machine operators on the extrusion line often spot ways to reduce waste, but there is no route for those ideas to reach the design team, and most are never passed on.",
+      "The senior team wants Kahu Textiles to be known for new fabric development rather than for competing on price. They are considering two strategies:",
+      "<b>Fostering autonomy</b> — forming small cross-department teams that are trusted to trial changes to the fabric or the process without sign-off from above.",
+      "<b>Rewards and recognition</b> — a scheme that pays a bonus to any employee whose idea is adopted into production."
+    ],
+    questions:[
+      {
+        ref:"(b)(i)", verb:"explain", type:"explain",
+        text:"Explain ONE positive effect on the employees of Kahu Textiles of moving away from a role culture.",
+        note:"Achieved-level wording. State your point and say why."
+      },
+      {
+        ref:"(b)(ii)", verb:"fully explain", type:"fully",
+        text:"Fully explain ONE impact on the business of fostering autonomy in cross-department teams.",
+        note:"Merit-level wording. State, explain, then say what it does to the business."
+      },
+      {
+        ref:"(b)(iii)", verb:"evaluate", type:"evaluate",
+        text:"Evaluate which of the two strategies is more likely to build an innovative culture at Kahu Textiles. Provide a justified conclusion, including any new information.",
+        note:"Excellence-level wording. A positive, a negative, then a judgement that uses something not in the resource."
+      }
+    ]
+  }
+];
+
+/* ============================================================
+   DETECTION VOCABULARY
+   ============================================================ */
+
+const REASON = [
+  "this is because","because","the reason for this is","the reason being",
+  "due to the fact that","due to","owing to","since","given that",
+  "which means that","this is a result of","as a consequence of"
+];
+
+const IMPACT = [
+  "the impact of this is","the impact of this","as a result","therefore",
+  "this means that","this means","this will mean","this would mean",
+  "consequently","which leads to","this leads to","this will lead to",
+  "this would lead to","resulting in","this will result in","this results in",
+  "in turn","meaning that","so the business","which allows the business",
+  "this allows the business"
+];
+
+const OUTCOME = [
+  "sales","revenue","profit","profits","profitability","market share",
+  "costs","cost","expenses","productivity","efficiency","staff turnover",
+  "turnover","retention","brand","reputation","customer loyalty",
+  "competitive advantage","cash flow","growth","exports","demand",
+  "market","price","prices","income","earnings","waste","output"
+];
+
+const CONTRAST = [
+  "however","on the other hand","although","whereas","conversely",
+  "a negative","a drawback","a downside","a disadvantage","but the business",
+  "the negative","one negative","one drawback","one disadvantage","a risk"
+];
+
+const POSITIVE = [
+  "a positive","one positive","a benefit","one benefit","an advantage",
+  "one advantage","a strength","the positive"
+];
+
+const CONCLUSION = [
+  "overall","in conclusion","to conclude","on balance","in my view",
+  "i conclude","taking everything","weighing","my conclusion",
+  "the better option","the better strategy","the more effective"
+];
+
+const JUDGEMENT = [
+  "likely","unlikely","probably","should","would be","will be effective",
+  "is the better","more effective","most suitable","most effective",
+  "i believe","i would argue","it is clear that"
+];
+
+const TERMS = {
+  "Innovation":[
+    "product innovation","process innovation","research and development","r&d",
+    "unique selling point","first mover","brand switching","market penetration",
+    "product development","market development","diversification","ansoff",
+    "invention","prototype","test market","disruptive","diffusion of innovation",
+    "early adopters","early majority","laggards","the chasm","commercialisation",
+    "economies of scale","lean production","productivity","efficiency",
+    "effectiveness","incremental","radical","competitive advantage",
+    "customer focused","product focused","intellectual property"
+  ],
+  "Innovative culture":[
+    "culture","artefacts","espoused values","underlying assumptions","schein",
+    "power culture","role culture","task culture","person culture",
+    "entrepreneurial culture","handy","autocratic","paternalistic","democratic",
+    "laissez-faire","autonomy","fail forward","fail fast","risk","bureaucracy",
+    "rewards and recognition","sense of ownership","open communication",
+    "clear sense of direction","diversity","incremental","kaizen",
+    "continuous improvement","empower","motivation","tolerance for failure",
+    "flat structure","matrix"
+  ]
+};
+
+const MAORI = [
+  "tikanga","pūtake","putake","tūranga","turanga","kaitiakitanga",
+  "rangatiratanga","whanaungatanga","manaakitanga","mana","pono","kotahitanga"
+];
+
+const STOPWORDS = new Set(("the and that this with have from will they their there " +
+  "which would could should because business been more than then when what have " +
+  "into about very some most many much also over such being were only your").split(" "));
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function findPhrases(text, list){
+  const lower = text.toLowerCase();
+  const hits = [];
+  for(const p of list){
+    let i = 0;
+    while((i = lower.indexOf(p, i)) !== -1){
+      const before = i === 0 ? " " : lower[i-1];
+      const after  = lower[i+p.length] || " ";
+      if(!/[a-z]/.test(before) && !/[a-z&]/.test(after)) hits.push({phrase:p, index:i});
+      i += p.length;
+    }
+  }
+  // longest match wins where two overlap
+  hits.sort((a,b) => a.index - b.index || b.phrase.length - a.phrase.length);
+  const kept = [];
+  let end = -1;
+  for(const h of hits){
+    if(h.index >= end){ kept.push(h); end = h.index + h.phrase.length; }
+  }
+  return kept;
+}
+
+function splitSentences(text){
+  const parts = text.replace(/\s+/g," ").trim().split(/(?<=[.!?])\s+/);
+  return parts.filter(s => s.trim().length > 0);
+}
+
+function words(text){
+  return (text.toLowerCase().match(/[a-zà-ÿāēīōū']+/g) || []);
+}
+
+/* ============================================================
+   THE CHECK
+   ============================================================ */
+
+function analyse(answer, q, scenario, biz, gs){
+  const text = answer.trim();
+  const wc = words(text).length;
+  const sentences = splitSentences(text);
+  const lower = text.toLowerCase();
+
+  const reason   = findPhrases(text, REASON);
+  const impact   = findPhrases(text, IMPACT);
+  const contrast = findPhrases(text, CONTRAST);
+  const positive = findPhrases(text, POSITIVE);
+  const conclude = findPhrases(text, CONCLUSION);
+  const judge    = findPhrases(text, JUDGEMENT);
+
+  // an impact move only counts if a business outcome word is nearby
+  let landedImpact = false;
+  const landedAt = [];
+  for(const h of impact){
+    const window = lower.slice(h.index, h.index + 190);
+    if(OUTCOME.some(o => new RegExp("\\b"+o.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b").test(window))){
+      landedImpact = true;
+      landedAt.push(h.index);
+    }
+  }
+
+  // subject terms
+  const bank = TERMS[scenario.topic] || [];
+  const termsUsed = [...new Set(findPhrases(text, bank).map(h => h.phrase))];
+  const maoriUsed = [...new Set(findPhrases(text, MAORI).map(h => h.phrase))];
+  // is the Māori concept doing work, or just sitting there?
+  let maoriExplained = false;
+  for(const h of findPhrases(text, MAORI)){
+    const window = lower.slice(Math.max(0,h.index-90), h.index + 200);
+    if(REASON.some(r => window.includes(r)) || IMPACT.some(i => window.includes(i))) maoriExplained = true;
+  }
+
+  // business anchoring
+  const bizName = biz.trim();
+  let bizCount = 0;
+  if(bizName){
+    const re = new RegExp(bizName.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"), "gi");
+    bizCount = (text.match(re) || []).length;
+  }
+
+  // possible new information: sentences carrying content words absent from the resource
+  const resourceWords = new Set(
+    words(scenario.body.join(" ") + " " + q.text).filter(w => w.length > 4 && !STOPWORDS.has(w))
+  );
+  let newInfoSentences = 0;
+  for(const s of sentences){
+    const fresh = words(s).filter(w => w.length > 4 && !STOPWORDS.has(w) && !resourceWords.has(w));
+    if(new Set(fresh).size >= 3) newInfoSentences++;
+  }
+
+  return {
+    wc, sentences, reason, impact, contrast, positive, conclude, judge,
+    landedImpact, landedAt, termsUsed, maoriUsed, maoriExplained,
+    bizName, bizCount, gs:gs.trim(), newInfoSentences
+  };
+}
+
+/* ============================================================
+   REPORT
+   ============================================================ */
+
+function buildChecks(a, q){
+  const C = [];
+  const add = (ok, name, note) => C.push({ok, name, note});
+
+  add(a.wc >= 25, "A point is made",
+      a.wc >= 25 ? `${a.wc} words.` : `Only ${a.wc} words. Too short to carry a full answer.`);
+
+  add(a.reason.length > 0, "A reason is given",
+      a.reason.length > 0
+        ? `Found ${a.reason.length} reason link${a.reason.length>1?"s":""} — e.g. “${a.reason[0].phrase}”.`
+        : "No “because”, “this is because”, “due to” or similar. The marker cannot see your reasoning.");
+
+  if(q.type !== "explain"){
+    add(a.landedImpact, "An effect on the business",
+        a.landedImpact
+          ? "You link your reason through to something that happens to the business."
+          : (a.impact.length > 0
+              ? "You use an impact phrase, but it does not reach a business outcome like sales, profit, costs, market share or reputation."
+              : "Nothing tells the marker what this does to the business. Try “The impact of this is that…”."));
+  }
+
+  add(a.bizName !== "" && a.bizCount >= 2, "The business is named and used",
+      a.bizName === ""
+        ? "Name the business in the box above."
+        : a.bizCount === 0
+          ? `“${a.bizName}” never appears in your answer.`
+          : a.bizCount === 1
+            ? `“${a.bizName}” appears once. Excellence answers keep returning to the business.`
+            : `“${a.bizName}” appears ${a.bizCount} times.`);
+
+  add(a.termsUsed.length >= 2, "Business knowledge used",
+      a.termsUsed.length
+        ? `${a.termsUsed.length} term${a.termsUsed.length>1?"s":""}: ${a.termsUsed.slice(0,5).join(", ")}${a.termsUsed.length>5?"…":""}`
+        : "No subject terms from this topic. Use the language of the standard.");
+
+  add(a.maoriUsed.length > 0 && a.maoriExplained, "Māori business concept",
+      a.maoriUsed.length === 0
+        ? "Optional, but only counts if it fits. Nothing found."
+        : a.maoriExplained
+          ? `${a.maoriUsed.join(", ")} — used with a reason attached.`
+          : `${a.maoriUsed.join(", ")} — named but not explained. Say what it means for the business.`);
+
+  if(q.type === "evaluate"){
+    add(a.positive.length > 0 || a.reason.length > 1, "A positive side",
+        a.positive.length ? "Signposted clearly." : "Hard to see where your positive is. Signpost it.");
+    add(a.contrast.length > 0, "A negative side",
+        a.contrast.length
+          ? `Found “${a.contrast[0].phrase}”.`
+          : "No “however”, “on the other hand” or similar. Evaluate needs both sides.");
+    add(a.conclude.length > 0, "A conclusion",
+        a.conclude.length ? `Found “${a.conclude[0].phrase}”.` : "No conclusion marker. Try “Overall…” or “On balance…”.");
+    add(a.judge.length > 0, "A judgement is made",
+        a.judge.length ? "You commit to a view." : "You describe but never decide. The question asks how likely, so say.");
+    add(a.newInfoSentences > 0, "Possible new information",
+        a.newInfoSentences > 0
+          ? `${a.newInfoSentences} sentence${a.newInfoSentences>1?"s":""} go beyond the resource. Check it is real business knowledge, not padding.`
+          : "Everything comes from the resource. Bring in something from your own study.");
+  }
+  return C;
+}
+
+function verdictFor(a, q){
+  const hasReason = a.reason.length > 0;
+  const hasImpact = a.landedImpact;
+
+  if(a.wc < 25) return "Too short to check properly. Write a full answer first.";
+
+  if(q.type === "explain"){
+    return hasReason
+      ? "This has the shape of a complete <b>explain</b> answer — a point with a reason behind it."
+      : "This states something but never says why. An <b>explain</b> answer needs a reason.";
+  }
+
+  if(q.type === "fully"){
+    if(hasReason && hasImpact) return "This has the shape of a <b>fully explain</b> answer — point, reason, and an effect on the business.";
+    if(hasReason) return "This stops at <b>explain</b>. The question says <b>fully explain</b>, so carry it through to what happens to the business.";
+    return "This states a point but gives neither a reason nor an effect. It is short of what <b>fully explain</b> asks for.";
+  }
+
+  const parts = (a.positive.length>0||a.reason.length>1) && a.contrast.length>0;
+  const closed = a.conclude.length>0 && a.judge.length>0;
+  if(parts && closed && hasImpact) return "This has the shape of an <b>evaluate</b> answer — both sides, carried through to the business, with a judgement at the end.";
+  if(parts && !closed) return "You have both sides but no clear judgement. <b>Evaluate</b> means deciding, not just listing.";
+  if(!parts && closed) return "You reach a conclusion, but only one side is visible. <b>Evaluate</b> needs the positive and the negative.";
+  return "This is missing several things <b>evaluate</b> asks for. Work through the checks below.";
+}
+
+/* ============================================================
+   TAGGED VIEW
+   ============================================================ */
+
+function renderTagged(a, q, text){
+  const out = [];
+  let cursor = 0;
+
+  for(const s of a.sentences){
+    const start = text.indexOf(s, cursor);
+    const idx = start === -1 ? cursor : start;
+    cursor = idx + s.length;
+
+    const inRange = h => h.index >= idx && h.index < idx + s.length;
+    const sReason   = a.reason.filter(inRange);
+    const sImpact   = a.impact.filter(inRange);
+    const sContrast = a.contrast.filter(inRange);
+    const sConc     = a.conclude.filter(inRange);
+    const landed    = a.landedAt.some(p => p >= idx && p < idx + s.length);
+
+    // highlight matched phrases inside the sentence
+    const marks = [...sReason, ...sImpact, ...sContrast, ...sConc]
+      .map(h => ({s:h.index - idx, e:h.index - idx + h.phrase.length}))
+      .sort((x,y) => x.s - y.s);
+
+    let html = "", pos = 0;
+    for(const m of marks){
+      if(m.s < pos) continue;
+      html += esc(s.slice(pos, m.s)) + "<mark>" + esc(s.slice(m.s, m.e)) + "</mark>";
+      pos = m.e;
+    }
+    html += esc(s.slice(pos));
+
+    const tags = [];
+    if(sConc.length) tags.push('<span class="tag tag-conc">Conclusion</span>');
+    if(sContrast.length) tags.push('<span class="tag tag-contrast">Other side</span>');
+    if(landed) tags.push('<span class="tag tag-impact">Fully explained</span>');
+    else if(sImpact.length) tags.push('<span class="tag tag-impact" style="opacity:.5">Impact — not landed</span>');
+    if(sReason.length) tags.push('<span class="tag tag-explained">Explained</span>');
+    if(!tags.length) tags.push('<span class="tag tag-stated">Stated</span>');
+
+    out.push(html + " " + tags.join(""));
+  }
+  return out.join(" ");
+}
+
+/* ============================================================
+   WIRING
+   ============================================================ */
+
+const FLAT = [];
+SCENARIOS.forEach(sc => sc.questions.forEach(q => FLAT.push({sc, q})));
+let current = 0;
+
+function renderTabs(){
+  $("tabs").innerHTML = FLAT.map((item,i) =>
+    `<button class="tab" role="button" aria-pressed="${i===current}" data-i="${i}">
+       <span class="ref">${item.q.ref}</span>
+       <span>${item.sc.name}</span>
+       <span class="verb">${item.q.verb}</span>
+     </button>`).join("");
+  $("tabs").querySelectorAll(".tab").forEach(b => {
+    b.addEventListener("click", () => { current = +b.dataset.i; renderTabs(); renderResource(); resetReport(); });
+  });
+}
+
+function renderResource(){
+  const {sc, q} = FLAT[current];
+  $("resource").innerHTML = `
+    <h2>${sc.topic}</h2>
+    <p class="biz">${sc.name}</p>
+    <p class="biz-sub">${sc.sub}</p>
+    ${sc.body.map(p => `<p class="body">${p}</p>`).join("")}
+    <div class="qbox">
+      <p class="qtext">${q.ref} &nbsp; ${q.text}</p>
+      <p class="qnote">${q.note}</p>
+    </div>`;
+}
+
+function resetReport(){
+  $("margin").innerHTML = `<h3>Marker's margin</h3>
+    <p class="empty">Nothing checked yet. Write an answer and press <b>Check my answer</b>.</p>`;
+  $("tagged").hidden = true;
+}
+
+function updateCount(){
+  const n = words($("answer").value).length;
+  $("count").textContent = n === 1 ? "1 word" : n + " words";
+}
+
+function runCheck(){
+  const text = $("answer").value;
+  const {sc, q} = FLAT[current];
+
+  if(!text.trim()){
+    $("margin").innerHTML = `<h3>Marker's margin</h3>
+      <p class="empty">Nothing to check yet — the answer box is empty.</p>`;
+    $("tagged").hidden = true;
+    return;
+  }
+
+  const a = analyse(text, q, sc, $("biz").value, $("gs").value);
+  const checks = buildChecks(a, q);
+
+  $("margin").innerHTML =
+    `<h3>Marker's margin</h3>
+     <p class="verdict">${verdictFor(a, q)}</p>
+     <ul class="checks">` +
+      checks.map(c => `<li class="${c.ok ? "ok" : "no"}">
+          <span class="mark">${c.ok ? "✓" : "○"}</span>
+          <span><span class="ck-name">${c.name}</span><span class="ck-note">${c.note}</span></span>
+        </li>`).join("") +
+     `</ul>`;
+
+  $("prose").innerHTML = renderTagged(a, q, text.replace(/\s+/g," ").trim());
+  $("tagged").hidden = false;
+  $("margin").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+$("check").addEventListener("click", runCheck);
+$("clear").addEventListener("click", () => {
+  $("answer").value = ""; updateCount(); resetReport(); $("answer").focus();
+});
+$("answer").addEventListener("input", updateCount);
+
+renderTabs();
+renderResource();
+updateCount();
+</script>
+</body>
+</html>
